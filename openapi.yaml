@@ -119,3 +119,86 @@ paths:
                   error:
                     type: string
                     description: The error message
+  /create_update_file:
+    post:
+      operationId: create_update_file
+      summary: Create or update a file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+                  description: The full path of the file to create or update
+                content:
+                  type: string
+                  description: The content to write to the file
+      responses:
+        '200':
+          description: File created or updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: The success message
+        '500':
+          description: Error creating or updating the file
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+  /delete_file:
+    post:
+      operationId: delete_file
+      summary: Delete a file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+                  description: The full path of the file to delete
+      responses:
+        '200':
+          description: File deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: The success message
+        '400':
+          description: Invalid file path
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+        '500':
+          description: Error deleting the file
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message

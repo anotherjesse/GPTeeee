@@ -143,6 +143,57 @@ async def read_file():
             mimetype="application/json",
         )
 
+@app.post("/create_update_file")
+async def create_update_file():
+    request_data = await quart.request.get_json(force=True)
+    file_path = request_data.get("path")
+    content = request_data.get("content", "")
+
+    try:
+        with open(file_path, "w") as file:
+            file.write(content)
+
+        return quart.Response(
+            response=json.dumps({"message": "File created/updated successfully"}),
+            status=200,
+            mimetype="application/json",
+        )
+
+    except Exception as e:
+        return quart.Response(
+            response=json.dumps({"error": str(e)}),
+            status=500,
+            mimetype="application/json",
+        )
+
+@app.post("/delete_file")
+async def delete_file():
+    request_data = await quart.request.get_json(force=True)
+    file_path = request_data.get("path")
+
+    if not os.path.isfile(file_path):
+        return quart.Response(
+            response=json.dumps({"error": "Invalid file path"}),
+            status=400,
+            mimetype="application/json",
+        )
+
+    try:
+        os.remove(file_path)
+
+        return quart.Response(
+            response=json.dumps({"message": "File deleted successfully"}),
+            status=200,
+            mimetype="application/json",
+        )
+
+    except Exception as e:
+        return quart.Response(
+            response=json.dumps({"error": str(e)}),
+            status=500,
+            mimetype="application/json",
+        )
+
 
 @app.get("/logo.png")
 async def plugin_logo():
