@@ -1,44 +1,121 @@
 openapi: 3.0.1
 info:
-  title: Stable Diffusion Plugin
-  description: A plugin that allows the user to generate images using ChatGPT.
+  title: Ubuntu Dev Plugin
+  description: A plugin that allows the user to run and edit code in a stateful ubuntu vm
   version: 'v1'
 servers:
   - url: http://localhost:5003
 paths:
-  /image:
+  /run:
     post:
-      operationId: generateImage
-      summary: generate new based on prompt
+      summary: Run a shell command
+      operationId: run_cmd
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/generateImageRequest'
+              type: object
+              properties:
+                cmd:
+                  type: string
+                  description: The shell command to run
+                stdout:
+                  type: boolean
+                  default: true
+                  description: Return stdout in the response
+                stderr:
+                  type: boolean
+                  default: false
+                  description: Return stderr in the response
+                timeout:
+                  type: integer
+                  default: 10
+                  description: Timeout for the command execution in seconds
       responses:
-        "200":
-          description: OK
-
-components:
-  schemas:
-    generateImageResponse:
-      type: array
-      items:
-        type: uri
-      description: URLs for images
-    generateImageRequest:
-      type: object
-      required:
-      - image
-      properties:
-        prompt:
-          type: string
-          description: descriptive of image
-          required: true
-        n:
-          type: integer
-          description: how many to generate
-          default: 1
-          maximum: 4
-          minimum: 1
+        '200':
+          description: Command executed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exit_code:
+                    type: integer
+                    description: The exit code of the command
+                  stdout:
+                    type: string
+                    description: The stdout of the command, if requested
+                  stderr:
+                    type: string
+                    description: The stderr of the command, if requested
+        '408':
+          description: Command execution timed out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+                  stdout:
+                    type: string
+                    description: The stdout of the command, if available
+                  stderr:
+                    type: string
+                    description: The stderr of the command, if available
+  /list_files:
+    post:
+      summary: List files in a directory
+      operationId: list_files
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                base_directory:
+                  type: string
+                  description: Optional base directory to list files from, defaults to project directory
+                regexp:
+                  type: string
+                  description: Optional regular expression to filter the files
+                limit:
+                  type: integer
+                  description: Optional limit for the number of files to return
+      responses:
+        '200':
+          description: Files listed successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    path:
+                      type: string
+                      description: The file path
+                    ctime:
+                      type: string
+                      format: date-time
+                      description: The file creation time
+                    mtime:
+                      type: string
+                      format: date-time
+                      description: The file modification time
+                    size:
+                      type: integer
+                      description: The file size in bytes
+        '400':
+          description: Invalid base directory
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
