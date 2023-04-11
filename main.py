@@ -68,7 +68,7 @@ async def list_files():
     def filter_files(file):
         if regexp is None:
             return True
-        return pattern.match(file)
+        return pattern.search(file)
 
     file_list = []
 
